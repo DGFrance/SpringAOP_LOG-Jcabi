@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd">
+
+    <bean id="customerService" class="com.javabootcamp.spring.Example.Service.CustomerService">
+        <property name="name" value="Donpaw"/>
+        <property name="url" value="http://www.Donpaw.co.id"/>
+    </bean>
+    <bean id="hijackBeforeMethodBean" class="com.javabootcamp.spring.Example.Service.HijackBeforeMethod" />
+
+    <bean id="customerServiceProxy"
+          class="org.springframework.aop.framework.ProxyFactoryBean">
+
+        <property name="target" ref="customerService" />
+
+        <property name="interceptorNames">
+            <list>
+                <value>hijackBeforeMethodBean</value>
+            </list>
+        </property>
+    </bean>
+
+    <!-- Enable AspectJ style of Spring AOP -->
+    <aop:aspectj-autoproxy />
+
+    <!-- Configure Employee Bean and initialize it -->
+    <bean name="employee" class="com.javabootcamp.spring.model.Employee">
+        <property name="name" value="Dummy Name"></property>
+    </bean>
+
+    <!-- Configure EmployeeService bean -->
+    <bean name="employeeService" class="com.javabootcamp.spring.service.EmployeeService">
+        <property name="employee" ref="employee"></property>
+    </bean>
+
+    <bean name="employeeXMLConfigAspect" class="com.javabootcamp.spring.aspect.EmployeeXMLConfigAspect" />
+    <!-- Spring AOP XML Configuration -->
+    <aop:config>
+        <aop:aspect ref="employeeXMLConfigAspect" id="employeeXMLConfigAspectID" order="1">
+            <aop:pointcut expression="execution(* com.javabootcamp.spring.model.Employee.getName())" id="getNamePointcut"/>
+            <aop:around method="employeeAroundAdvice" pointcut-ref="getNamePointcut" arg-names="proceedingJoinPoint"/>
+        </aop:aspect>
+    </aop:config>
+
+    <!-- Configure Aspect Beans, without this Aspects advices wont execute -->
+    <bean name="employeeAspect" class="com.javabootcamp.spring.aspect.EmployeeAspect" />
+    <bean name="employeeAspectPointcut" class="com.javabootcamp.spring.aspect.EmployeeAspectPointcut" />
+    <bean name="employeeAspectJoinPoint" class="com.javabootcamp.spring.aspect.EmployeeAspectJoinPoint" />
+    <bean name="employeeAfterAspect" class="com.javabootcamp.spring.aspect.EmployeeAfterAspect" />
+    <bean name="employeeAroundAspect" class="com.javabootcamp.spring.aspect.EmployeeAroundAspect" />
+    <bean name="employeeAnnotationAspect" class="com.javabootcamp.spring.aspect.EmployeeAnnotationAspect" />
+
+</beans>
